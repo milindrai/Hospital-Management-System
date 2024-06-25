@@ -23,6 +23,7 @@ router.get('/status/:name', (req, res) => {
 // Create a new patient
 router.post('/create', (req, res) => {
     const { name, hospital_id, disease_id, doctor_id, department } = req.body;
+
     if (!name || !hospital_id || !disease_id || !doctor_id || !department) {
         return res.status(400).json({ message: 'Please provide patient name, hospital_id, disease_id, doctor_id, and department.' });
     }
