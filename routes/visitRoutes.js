@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// Get all hospital visits for a patient with details
+// Get all hospital visits for a patient with details including final status
 router.get('/patient/visits/:name', (req, res) => {
     const patientName = req.params.name;
     db.query('SELECT * FROM patients WHERE patient_name = ?', [patientName], (err, results) => {
@@ -16,6 +16,8 @@ router.get('/patient/visits/:name', (req, res) => {
         }
 
         const patientId = results[0].patient_id;
+        const currentStatus = results[0].status; // Fetching the current status from patients table
+
         db.query('SELECT * FROM visits WHERE patient_id = ? ORDER BY visit_date', [patientId], (err, visits) => {
             if (err) {
                 console.error('Error querying MySQL:', err);
@@ -24,6 +26,7 @@ router.get('/patient/visits/:name', (req, res) => {
 
             res.json({
                 patient: patientName,
+                status: currentStatus, // Including the current status in the response
                 visits: visits.map(visit => ({
                     visit_date: visit.visit_date,
                     remarks: visit.remarks
@@ -32,6 +35,7 @@ router.get('/patient/visits/:name', (req, res) => {
         });
     });
 });
+
 
 // Update patient visits with remarks
 router.put('/update/:id/visits', (req, res) => {
