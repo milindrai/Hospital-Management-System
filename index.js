@@ -13,7 +13,7 @@ const patientRoutes = require('./routes/patientRoutes');
 const visitRoutes = require('./routes/visitRoutes');
 
 // Use route handlers
-app.use('/patient', patientRoutes); // Correct variable name and path
+app.use('/patient', patientRoutes); 
 app.use('/visit', visitRoutes);
 
 // Start server
