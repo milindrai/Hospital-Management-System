@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+
 const express = require('express');
 const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
@@ -7,8 +8,8 @@ const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 
 const app = express();
-const port = process.env.PORT || 3000;
-const SECRET_KEY = process.env.JWT_SECRET || '2MQajZZkmcWpefBlZ5HcM3DBhncw83lxYmN1jfVIgGA=';
+const port = process.env.PORT ;
+const SECRET_KEY = process.env.JWT_SECRET ;
 
 app.use(bodyParser.json());
 
@@ -25,74 +26,120 @@ db.connect(err => {
     console.log('MySQL connected...');
 });
 
-// Signup route
-app.post('/signup', (req, res) => {
-    const { name, email, password } = req.body;
+// API Endpoints
 
-    if (!name || !email || !password) {
-        return res.status(400).json({ message: 'Please provide name, email, and password.' });
-    }
-
-    // Check if user already exists
-    db.query('SELECT email FROM users WHERE email = ?', [email], (err, results) => {
-        if (err) throw err;
-
-        if (results.length > 0) {
-            return res.status(400).json({ message: 'Email already exists.' });
-        }
-
-        // Hash the password
-        bcrypt.hash(password, 10, (err, hashedPassword) => {
-            if (err) throw err;
-
-            // Insert user into the database
-            db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword], (err, results) => {
-                if (err) throw err;
-
-                // Generate JWT token
-                const token = jwt.sign({ id: results.insertId, email }, SECRET_KEY, { expiresIn: '1h' });
-
-                res.json({ token });
-            });
-        });
-    });
-});
-
-// Login route
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' });
-    }
-
-    // Check if user exists
-    db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
+// Get current status of a patient by name
+app.get('/patient/status/:name', (req, res) => {
+    const patientName = req.params.name;
+    db.query('SELECT * FROM patients WHERE patient_name = ?', [patientName], (err, results) => {
         if (err) {
             console.error('Error querying MySQL:', err);
             return res.status(500).json({ message: 'Internal server error' });
         }
 
         if (results.length === 0) {
-            // If user does not exist, respond with user not found message
-            return res.status(404).json({ message: 'User not found' });
-        } else {
-            const user = results[0];
-
-            // Check password
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-                return res.status(401).json({ message: 'Invalid credentials' });
-            }
-
-            // Create JWT token
-            const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-
-            res.json({ message: 'Login successful', token });
+            return res.status(404).json({ message: 'Patient not found' });
         }
+
+        const currentStatus = results[0].status;
+        res.json({ name: patientName, status: currentStatus });
     });
 });
 
+// Get all hospital visits for a patient with details
+app.get('/patient/visits/:name', (req, res) => {
+    const patientName = req.params.name;
+    db.query('SELECT * FROM patients WHERE patient_name = ?', [patientName], (err, results) => {
+        if (err) {
+            console.error('Error querying MySQL:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        const patientId = results[0].patient_id;
+        db.query('SELECT * FROM visits WHERE patient_id = ? ORDER BY visit_date', [patientId], (err, visits) => {
+            if (err) {
+                console.error('Error querying MySQL:', err);
+                return res.status(500).json({ message: 'Internal server error' });
+            }
+
+            res.json({
+                patient: patientName,
+                visits: visits.map(visit => ({
+                    visit_date: visit.visit_date,
+                    remarks: visit.remarks
+                }))
+            });
+        });
+    });
+});
+
+// Create a new patient
+app.post('/patient/create', (req, res) => {
+    const { name, hospital_id, disease_id, doctor_id } = req.body;
+    if (!name || !hospital_id || !disease_id || !doctor_id) {
+        return res.status(400).json({ message: 'Please provide patient name, hospital_id, disease_id, and doctor_id.' });
+    }
+
+    db.query('INSERT INTO patients (patient_name, hospital_id, disease_id, doctor_id, status) VALUES (?, ?, ?, ?, ?)', 
+        [name, hospital_id, disease_id, doctor_id, 'primary_check'], 
+        (err, result) => {
+            if (err) {
+                console.error('Error inserting patient:', err);
+                return res.status(500).json({ message: 'Failed to create patient' });
+            }
+
+            const patientNumber = result.insertId;
+            res.json({ message: 'Patient created', patient_number: patientNumber });
+        });
+});
+
+// Update patient status
+app.put('/patient/update/:id/status', (req, res) => {
+    const patientId = req.params.id;
+    const { status } = req.body;
+    if (!status) {
+        return res.status(400).json({ message: 'Please provide status to update' });
+    }
+
+    db.query('UPDATE patients SET status = ? WHERE patient_id = ?', [status, patientId], (err, result) => {
+        if (err) {
+            console.error('Error updating patient status:', err);
+            return res.status(500).json({ message: 'Failed to update patient status' });
+        }
+
+        res.json({ message: 'Patient status updated', patient_id: patientId });
+    });
+});
+
+// Update patient visits with remarks
+app.put('/patient/update/:id/visits', (req, res) => {
+    const patientId = req.params.id;
+    const { visit_date, remarks } = req.body;
+    if (!visit_date || !remarks) {
+        return res.status(400).json({ message: 'Please provide visit_date and remarks' });
+    }
+
+    db.query('INSERT INTO visits (patient_id, visit_date, remarks) VALUES (?, ?, ?)', 
+        [patientId, visit_date, remarks], 
+        (err, result) => {
+            if (err) {
+                console.error('Error inserting visit:', err);
+                return res.status(500).json({ message: 'Failed to update patient visits' });
+            }
+
+            res.json({ message: 'Patient visits updated', visit_id: result.insertId });
+        });
+});
+
+// Start server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
+
+
+
