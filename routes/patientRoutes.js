@@ -22,13 +22,13 @@ router.get('/status/:name', (req, res) => {
 
 // Create a new patient
 router.post('/create', (req, res) => {
-    const { name, hospital_id, disease_id, doctor_id } = req.body;
-    if (!name || !hospital_id || !disease_id || !doctor_id) {
-        return res.status(400).json({ message: 'Please provide patient name, hospital_id, disease_id, and doctor_id.' });
+    const { name, hospital_id, disease_id, doctor_id, department } = req.body;
+    if (!name || !hospital_id || !disease_id || !doctor_id || !department) {
+        return res.status(400).json({ message: 'Please provide patient name, hospital_id, disease_id, doctor_id, and department.' });
     }
 
-    db.query('INSERT INTO patients (patient_name, hospital_id, disease_id, doctor_id, status) VALUES (?, ?, ?, ?, ?)', 
-        [name, hospital_id, disease_id, doctor_id, 'primary_check'], 
+    db.query('INSERT INTO patients (patient_name, hospital_id, disease_id, doctor_id, department, status) VALUES (?, ?, ?, ?, ?, ?)', 
+        [name, hospital_id, disease_id, doctor_id, department, 'primary_check'], 
         (err, result) => {
             if (err) {
                 console.error('Error inserting patient:', err);
@@ -39,6 +39,7 @@ router.post('/create', (req, res) => {
             res.json({ message: 'Patient created', patient_number: patientNumber });
         });
 });
+
 
 // Update patient status
 router.put('/update/:id/status', (req, res) => {
