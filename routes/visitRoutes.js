@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db');
 
 // Get all hospital visits for a patient with details
-router.get('/visits/:name', (req, res) => {
+router.get('/patient/visits/:name', (req, res) => {
     const patientName = req.params.name;
     db.query('SELECT * FROM patients WHERE patient_name = ?', [patientName], (err, results) => {
         if (err) {

@@ -1,10 +1,10 @@
 require('dotenv').config();
-
+require("./db");
 const express = require('express');
 const bodyParser = require('body-parser');
-
 const app = express();
-const port = process.env.PORT || 3000;
+
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
@@ -13,7 +13,7 @@ const patientRoutes = require('./routes/patientRoutes');
 const visitRoutes = require('./routes/visitRoutes');
 
 // Use route handlers
-app.use('/patient', patientRoutes);
+app.use('/patient', patientRoutes); // Correct variable name and path
 app.use('/visit', visitRoutes);
 
 // Start server
