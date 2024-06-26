@@ -1,11 +1,18 @@
 const jwt = require('jsonwebtoken');
+const tokenBlacklist = require('./tokenBlacklist');
 require('dotenv').config();
-const authenticateToken = require('../authMiddleware');
 
 const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
         return res.status(401).json({ message: 'Access denied, no token provided' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Extract the token from the "Bearer <token>" format
+
+    // Check if the token is blacklisted
+    if (tokenBlacklist.includes(token)) {
+        return res.status(401).json({ message: 'Token is invalidated' });
     }
 
     try {
