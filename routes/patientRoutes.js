@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const authenticateToken = require('../authMiddleware');
 require('dotenv').config();
 
+// Use the authenticateToken middleware
+router.use(authenticateToken);
 
 // Get current status of a patient by name
 router.get('/status/:name', (req, res) => {
@@ -42,7 +45,6 @@ router.post('/create', (req, res) => {
             res.json({ message: 'Patient created', patient_number: patientNumber });
         });
 });
-
 
 // Update patient status
 router.put('/update/:id/status', (req, res) => {
