@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+require('dotenv').config();
+
 
 // Get current status of a patient by name
 router.get('/status/:name', (req, res) => {

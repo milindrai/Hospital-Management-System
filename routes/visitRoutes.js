@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+require('dotenv').config();
+
 
 // Get all hospital visits for a patient with details including final status
 router.get('/patient/visits/:name', (req, res) => {
