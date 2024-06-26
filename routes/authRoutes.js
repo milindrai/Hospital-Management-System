@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-
 // Signup
 router.post('/signup', (req, res) => {
     const { name, email, password } = req.body;
@@ -13,21 +12,33 @@ router.post('/signup', (req, res) => {
         return res.status(400).json({ message: 'Please provide name, email, and password' });
     }
 
-    // Hash the password
-    bcrypt.hash(password, 10, (err, hash) => {
+    // Check if user already exists
+    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) {
-            console.error('Error hashing password:', err);
+            console.error('Error checking user existence:', err);
             return res.status(500).json({ message: 'Internal server error' });
         }
 
-        // Insert user into the database
-        db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hash], (err, result) => {
+        if (results.length > 0) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Hash the password
+        bcrypt.hash(password, 10, (err, hash) => {
             if (err) {
-                console.error('Error inserting user:', err);
-                return res.status(500).json({ message: 'Failed to create user' });
+                console.error('Error hashing password:', err);
+                return res.status(500).json({ message: 'Internal server error' });
             }
 
-            res.json({ message: 'User created successfully' });
+            // Insert user into the database
+            db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hash], (err, result) => {
+                if (err) {
+                    console.error('Error inserting user:', err);
+                    return res.status(500).json({ message: 'Failed to create user' });
+                }
+
+                res.json({ message: 'User created successfully' });
+            });
         });
     });
 });
