@@ -3,8 +3,8 @@ const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const tokenBlacklist = require('../tokenBlacklist');
 require('dotenv').config();
+
 
 // Signup
 router.post('/signup', (req, res) => {
@@ -73,19 +73,10 @@ router.post('/login', (req, res) => {
 
 // Logout
 router.post('/logout', (req, res) => {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
+    const token = req.headers['authorization'];
+    if (!token) {
         return res.status(400).json({ message: 'No token provided' });
     }
-
-    const token = authHeader.split(' ')[1]; // Extract the token from the "Bearer <token>" format
-
-    console.log('Adding token to blacklist:', token);
-
-    // Add token to blacklist
-    tokenBlacklist.push(token);
-
-    console.log('Current blacklist:', tokenBlacklist);
 
     res.json({ message: 'Logout successful' });
 });
