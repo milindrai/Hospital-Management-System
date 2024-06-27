@@ -8,8 +8,8 @@ router.use(authenticateToken);
 
 // Patient-only routes
 router.get('/status/:name', (req, res) => {
-    if (req.user.role !== 'user' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, only users can view appointment details' });
+    if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied, only doctors and admins can view these details' });
     }
     const patientName = req.params.name;
     db.query('SELECT * FROM patients WHERE patient_name = ?', [patientName], (err, results) => {

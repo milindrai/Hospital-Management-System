@@ -9,7 +9,7 @@ router.use(authenticateToken);
 // Admin-only routes
 router.post('/patient/create', (req, res) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const { name, hospital_id, disease_id, doctor_id, department } = req.body;
@@ -22,7 +22,6 @@ router.post('/patient/create', (req, res) => {
         [name, hospital_id, disease_id, doctor_id, department, 'primary_check'],
         (err, result) => {
             if (err) {
-                console.error('Error inserting patient:', err);
                 return res.status(500).json({ message: 'Failed to create patient' });
             }
 
@@ -33,13 +32,13 @@ router.post('/patient/create', (req, res) => {
 
 router.put('/patient/update/:id/status', (req, res) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const patientId = req.params.id;
     const { status } = req.body;
     if (!status) {
-        return res.status(400).json({ message: 'Please provide status to update' });
+        return res.status(400).json({ message: 'Please provide current status to update' });
     }
 
     db.query('UPDATE patients SET status = ? WHERE patient_id = ?', [status, patientId], (err, result) => {
@@ -52,9 +51,9 @@ router.put('/patient/update/:id/status', (req, res) => {
     });
 });
 
-router.put('/visit/update/:id/visits', (req, res) => {
+router.put('/visit/update/:id', (req, res) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const patientId = req.params.id;
@@ -67,7 +66,7 @@ router.put('/visit/update/:id/visits', (req, res) => {
         [patientId, visit_date, remarks],
         (err, result) => {
             if (err) {
-                console.error('Error inserting visit:', err);
+                console.error('Error inserting visit details:', err);
                 return res.status(500).json({ message: 'Failed to update patient visits' });
             }
 
@@ -78,7 +77,7 @@ router.put('/visit/update/:id/visits', (req, res) => {
 // Staff management routes
 router.post('/staff', (req, res) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const { name, role, contact } = req.body;
