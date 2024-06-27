@@ -13,11 +13,17 @@ app.use(bodyParser.json());
 const patientRoutes = require('./routes/patientRoutes');
 const visitRoutes = require('./routes/visitRoutes');
 const authRoutes = require('./routes/authRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
+const prescriptionRoutes = require('./routes/prescriptionRoutes');
+const staffRoutes = require('./routes/staffRoutes');
 
 // Use route handlers
 app.use('/patient', authenticateToken, patientRoutes);
 app.use('/visit', authenticateToken, visitRoutes);
-app.use('/auth', authRoutes); 
+app.use('/auth', authRoutes);
+app.use('/appointments', authenticateToken, appointmentRoutes);
+app.use('/prescriptions', authenticateToken, prescriptionRoutes);
+app.use('/staff', authenticateToken, staffRoutes);
 
 // Start server
 app.listen(port, () => {
