@@ -3,9 +3,8 @@ const db = require('./db');
 require('dotenv').config();
 
 const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    
+    const token = req.cookies.token; // Read the token from cookies
+
     if (!token) {
         return res.status(401).json({ message: 'Access denied, no token provided' });
     }
@@ -14,7 +13,7 @@ const authenticateToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({ message: 'Invalid token' });
         }
-        
+
         req.user = user;
 
         // Fetch user role from database and attach to request object

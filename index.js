@@ -2,12 +2,14 @@ require('dotenv').config();
 require("./db");
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const authenticateToken = require('./authMiddleware');
 const app = express();
 
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // Require route handlers
 const patientRoutes = require('./routes/patientRoutes');

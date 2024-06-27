@@ -5,32 +5,28 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// Signup
 router.post('/signup', (req, res) => {
     const { name, email, password, role } = req.body;
     if (!name || !email || !password || !role) {
         return res.status(400).json({ message: 'Please provide name, email, password, and role' });
     }
 
-    // Check if user already exists
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) {
-            console.error('Error checking user existence:', err);
-            return res.status(500).json({ message: 'Internal server error' });
+            console.error('Error fetching user existence:', err);
+            return res.status(500).json({ message: 'Server error' });
         }
 
         if (results.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Hash the password
         bcrypt.hash(password, 10, (err, hash) => {
             if (err) {
                 console.error('Error hashing password:', err);
-                return res.status(500).json({ message: 'Internal server error' });
+                return res.status(500).json({ message: 'Server error' });
             }
 
-            // Insert user into the database with role
             db.query('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', [name, email, hash, role], (err, result) => {
                 if (err) {
                     console.error('Error inserting user:', err);
@@ -43,18 +39,16 @@ router.post('/signup', (req, res) => {
     });
 });
 
-// Login
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(400).json({ message: 'Please provide email and password' });
     }
 
-    // Check if the user exists
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) {
-            console.error('Error querying MySQL:', err);
-            return res.status(500).json({ message: 'Internal server error' });
+            console.error('Error querying database:', err);
+            return res.status(500).json({ message: 'Server error' });
         }
 
         if (results.length === 0) {
@@ -63,7 +57,6 @@ router.post('/login', (req, res) => {
 
         const user = results[0];
 
-        // Compare passwords
         bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err) {
                 console.error('Error comparing passwords:', err);
@@ -74,21 +67,17 @@ router.post('/login', (req, res) => {
                 return res.status(401).json({ message: 'Incorrect password' });
             }
 
-            // Create a JWT token
-            const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
-            res.json({ message: 'Login successful', token });
+            res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+
+            res.json({ message: 'Login successful' });
         });
     });
 });
 
-// Logout
 router.post('/logout', (req, res) => {
-    const token = req.headers['authorization'];
-    if (!token) {
-        return res.status(400).json({ message: 'No token provided' });
-    }
-
+    res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
     res.json({ message: 'Logout successful' });
 });
 
