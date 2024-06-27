@@ -8,7 +8,7 @@ router.use(authenticateToken);
 
 // Doctor-only routes
 router.post('/', (req, res) => {
-    if (req.user.role !== 'doctor') {
+    if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied, doctor role required' });
     }
 
@@ -33,7 +33,7 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:prescription_id', (req, res) => {
-    if (req.user.role !== 'doctor') {
+    if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied, doctor role required' });
     }
 

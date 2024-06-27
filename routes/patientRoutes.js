@@ -8,7 +8,7 @@ router.use(authenticateToken);
 
 // Patient-only routes
 router.get('/status/:name', (req, res) => {
-    if (req.user.role === 'user') {
+    if (req.user.role !== 'user' && req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied, only users can view appointment details' });
     }
     const patientName = req.params.name;

@@ -9,7 +9,7 @@ router.use(authenticateToken);
 // Create Appointment - accessible only to users
 router.post('/', (req, res) => {
     // Check if the requester is not a user
-    if (req.user.role !== 'user') {
+    if (req.user.role !== 'user' && req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied, only users can create appointments' });
     }
 
@@ -37,7 +37,7 @@ router.post('/', (req, res) => {
 // Get Appointment Details - accessible only to users
 router.get('/:appointment_id', (req, res) => {
     // Check if the requester is not a user
-    if (req.user.role !== 'user') {
+    if (req.user.role !== 'user' && req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied, only users can view appointment details' });
     }
 
@@ -60,7 +60,7 @@ router.get('/:appointment_id', (req, res) => {
 // Cancel Appointment - accessible only to users
 router.delete('/:appointment_id', (req, res) => {
     // Check if the requester is not a user
-    if (req.user.role !== 'user') {
+    if (req.user.role !== 'user' && req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Access denied, only users can cancel appointments' });
     }
 

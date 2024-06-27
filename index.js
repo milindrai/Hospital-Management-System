@@ -16,6 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const prescriptionRoutes = require('./routes/prescriptionRoutes');
 const staffRoutes = require('./routes/staffRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Use route handlers
 app.use('/patient', authenticateToken, patientRoutes);
@@ -24,6 +25,8 @@ app.use('/auth', authRoutes);
 app.use('/appointments', authenticateToken, appointmentRoutes);
 app.use('/prescriptions', authenticateToken, prescriptionRoutes);
 app.use('/staff', authenticateToken, staffRoutes);
+app.use('/admin', authenticateToken, adminRoutes);
+
 
 // Start server
 app.listen(port, () => {
