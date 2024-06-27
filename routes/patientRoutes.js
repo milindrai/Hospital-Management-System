@@ -29,21 +29,22 @@ router.get('/status/:name', (req, res) => {
 
 
 //error in this api
-router.get('/visits/:name', (req, res) => {
-    const patientName = req.params.name;
-    db.query('SELECT * FROM visits WHERE patient_name = ?', [patientName], (err, results) => {
+router.get('/visits/:patient_id', (req, res) => {
+    const patientId = req.params.patient_id;
+    db.query('SELECT * FROM visits WHERE patient_id = ?', [patientId], (err, results) => {
         if (err) {
             console.error('Error querying MySQL:', err);
             return res.status(500).json({ message: 'Internal server error' });
         }
 
         if (results.length === 0) {
-            console.log('No visits found for patient', patientName);
-            return res.status(404).json({ message: 'Visits not found for patient' });
+            console.log('No visits found for patient ID', patientId);
+            return res.status(404).json({ message: 'Visits not found for patient ID' });
         }
 
         res.json(results);
     });
 });
+
 
 module.exports = router;
