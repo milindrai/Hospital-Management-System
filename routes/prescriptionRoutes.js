@@ -6,10 +6,9 @@ const authenticateToken = require('../authMiddleware');
 // Use the authenticateToken middleware
 router.use(authenticateToken);
 
-// Doctor-only routes
 router.post('/', (req, res) => {
     if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, doctor role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const { patient_id, doctor_id, medications } = req.body;
@@ -34,7 +33,7 @@ router.post('/', (req, res) => {
 
 router.put('/:prescription_id', (req, res) => {
     if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, doctor role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const prescriptionId = req.params.prescription_id;

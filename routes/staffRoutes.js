@@ -6,10 +6,9 @@ const authenticateToken = require('../authMiddleware');
 // Use the authenticateToken middleware
 router.use(authenticateToken);
 
-// Admin routes
 router.get('/', (req, res) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     db.query('SELECT * FROM staff', (err, results) => {
@@ -24,7 +23,7 @@ router.get('/', (req, res) => {
 
 router.delete('/:staff_id', (req, res) => {
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const staffId = req.params.staff_id;

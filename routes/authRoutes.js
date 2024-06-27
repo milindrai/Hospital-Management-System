@@ -60,7 +60,7 @@ router.post('/login', (req, res) => {
         bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err) {
                 console.error('Error comparing passwords:', err);
-                return res.status(500).json({ message: 'Internal server error' });
+                return res.status(500).json({ message: 'Server error' });
             }
 
             if (!isMatch) {

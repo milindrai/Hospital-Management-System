@@ -6,10 +6,9 @@ const authenticateToken = require('../authMiddleware');
 // Use the authenticateToken middleware
 router.use(authenticateToken);
 
-// Admin and Doctor routes
 router.get('/:patient_id', (req, res) => {
     if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, doctor or admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const patientId = req.params.patient_id;
@@ -26,7 +25,7 @@ router.get('/:patient_id', (req, res) => {
 
 router.delete('/:visit_id', (req, res) => {
     if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, doctor or admin role required' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const visitId = req.params.visit_id;
