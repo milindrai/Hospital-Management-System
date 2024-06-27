@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a Hospital Management System implemented using Node.js and MySQL. It provides functionality to manage patients, hospital visits, and their respective details through a RESTful API.
+This Hospital Management System is a backend application built with MySQL and Express.js, providing a RESTful API for managing hospital operations such as user authentication, patient management, staff management, visit management, and appointment scheduling.
 
 ## Features
 
