@@ -6,8 +6,12 @@ const authenticateToken = require('../authMiddleware');
 // Use the authenticateToken middleware
 router.use(authenticateToken);
 
-// Create a prescription
+// Doctor-only routes
 router.post('/', (req, res) => {
+    if (req.user.role !== 'doctor') {
+        return res.status(403).json({ message: 'Access denied, doctor role required' });
+    }
+
     const { patient_id, doctor_id, medications } = req.body;
 
     if (!patient_id || !doctor_id || !medications) {
@@ -16,8 +20,8 @@ router.post('/', (req, res) => {
 
     const medicationsJSON = JSON.stringify(medications);
 
-    db.query('INSERT INTO prescriptions (patient_id, doctor_id, medications) VALUES (?, ?, ?)', 
-        [patient_id, doctor_id, medicationsJSON], 
+    db.query('INSERT INTO prescriptions (patient_id, doctor_id, medications) VALUES (?, ?, ?)',
+        [patient_id, doctor_id, medicationsJSON],
         (err, result) => {
             if (err) {
                 console.error('Error creating prescription:', err);
@@ -28,8 +32,11 @@ router.post('/', (req, res) => {
         });
 });
 
-// Update a prescription
 router.put('/:prescription_id', (req, res) => {
+    if (req.user.role !== 'doctor') {
+        return res.status(403).json({ message: 'Access denied, doctor role required' });
+    }
+
     const prescriptionId = req.params.prescription_id;
     const { medications } = req.body;
 
@@ -39,8 +46,8 @@ router.put('/:prescription_id', (req, res) => {
 
     const medicationsJSON = JSON.stringify(medications);
 
-    db.query('UPDATE prescriptions SET medications = ? WHERE prescription_id = ?', 
-        [medicationsJSON, prescriptionId], 
+    db.query('UPDATE prescriptions SET medications = ? WHERE prescription_id = ?',
+        [medicationsJSON, prescriptionId],
         (err, result) => {
             if (err) {
                 console.error('Error updating prescription:', err);

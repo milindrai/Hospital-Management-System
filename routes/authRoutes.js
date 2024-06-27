@@ -7,9 +7,9 @@ require('dotenv').config();
 
 // Signup
 router.post('/signup', (req, res) => {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-        return res.status(400).json({ message: 'Please provide name, email, and password' });
+    const { name, email, password, role } = req.body;
+    if (!name || !email || !password || !role) {
+        return res.status(400).json({ message: 'Please provide name, email, password, and role' });
     }
 
     // Check if user already exists
@@ -30,8 +30,8 @@ router.post('/signup', (req, res) => {
                 return res.status(500).json({ message: 'Internal server error' });
             }
 
-            // Insert user into the database
-            db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hash], (err, result) => {
+            // Insert user into the database with role
+            db.query('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', [name, email, hash, role], (err, result) => {
                 if (err) {
                     console.error('Error inserting user:', err);
                     return res.status(500).json({ message: 'Failed to create user' });

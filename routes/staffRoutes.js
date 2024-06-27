@@ -6,45 +6,37 @@ const authenticateToken = require('../authMiddleware');
 // Use the authenticateToken middleware
 router.use(authenticateToken);
 
-// Add new staff
-router.post('/', (req, res) => {
-    const { name, role, contact } = req.body;
-
-    if (!name || !role || !contact) {
-        return res.status(400).json({ message: 'Please provide name, role, and contact.' });
+// Admin routes
+router.get('/', (req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied, admin role required' });
     }
 
-    db.query('INSERT INTO staff (name, role, contact) VALUES (?, ?, ?)', 
-        [name, role, contact], 
-        (err, result) => {
-            if (err) {
-                console.error('Error adding staff:', err);
-                return res.status(500).json({ message: 'Failed to add staff' });
-            }
+    db.query('SELECT * FROM staff', (err, results) => {
+        if (err) {
+            console.error('Error querying staff:', err);
+            return res.status(500).json({ message: 'Failed to retrieve staff' });
+        }
 
-            res.json({ message: 'Staff added', staff_id: result.insertId });
-        });
+        res.json(results);
+    });
 });
 
-// Update staff details
-router.put('/:staff_id', (req, res) => {
-    const staffId = req.params.staff_id;
-    const { name, role, contact } = req.body;
-
-    if (!name || !role || !contact) {
-        return res.status(400).json({ message: 'Please provide name, role, and contact.' });
+router.delete('/:staff_id', (req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied, admin role required' });
     }
 
-    db.query('UPDATE staff SET name = ?, role = ?, contact = ? WHERE staff_id = ?', 
-        [name, role, contact, staffId], 
-        (err, result) => {
-            if (err) {
-                console.error('Error updating staff:', err);
-                return res.status(500).json({ message: 'Failed to update staff' });
-            }
+    const staffId = req.params.staff_id;
 
-            res.json({ message: 'Staff details updated' });
-        });
+    db.query('DELETE FROM staff WHERE staff_id = ?', [staffId], (err, result) => {
+        if (err) {
+            console.error('Error deleting staff:', err);
+            return res.status(500).json({ message: 'Failed to delete staff' });
+        }
+
+        res.json({ message: 'Staff deleted' });
+    });
 });
 
 module.exports = router;
