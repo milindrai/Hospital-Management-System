@@ -1,23 +1,39 @@
-# Hospital Management System
+# Hospital Management System API
 
 ## Overview
 
-This Hospital Management System is a backend application built with MySQL and Express.js, providing a RESTful API for managing hospital operations such as user authentication, patient management, staff management, visit management, and appointment scheduling.
+The Hospital Management System API is designed to streamline the operations of a hospital by providing a comprehensive backend solution. Built using Node.js and Express.js, and leveraging a MySQL database, this API facilitates efficient management of patients, staff, appointments, and medical records.
 
 ## Features
 
-- **Patient Management:**
-  - Create new patients with details such as name, hospital ID, disease ID, doctor ID, and department.
-  - Retrieve patient details including current status.
-  - Update patient status.
+### Authentication and Authorization
+- Secure user authentication and authorization using JWT tokens.
+- Role-based access control for different user types (e.g., admin, doctor, patient).
 
-- **Hospital Visits:**
-  - Record visits for patients with details like visit date and remarks.
-  - Retrieve all visits for a patient including visit details and final status.
+### Patient Management
+- Registration of new patients with comprehensive details.
+- Retrieval of patient information including medical history and current status.
+- Update operations for patient records to reflect changes in status or details.
+
+### Staff Management
+- Addition of new staff members with roles and contact information.
+- Update and retrieval of staff details.
+
+### Appointment Scheduling
+- Creation and management of appointments for patients with doctors.
+- Viewing and updating appointment details.
+
+### Visit Records
+- Recording and updating details of patient visits, including visit date and remarks.
+- Retrieval of all visit records for a particular patient.
+
+### Prescription Management
+- Issuance of prescriptions to patients.
+- Retrieval and update of prescription details.
 
 ## Technologies Used
-
-- **Node.js**
-- **Express.js**
-- **MySQL**
-
+- Node.js
+- Express.js
+- MySQL
+- JSON Web Tokens (JWT) for authentication
+- bcrypt for password hashing
