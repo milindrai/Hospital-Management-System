@@ -7,7 +7,7 @@ const authenticateToken = require('../authMiddleware');
 router.use(authenticateToken);
 
 router.post('/patient/create', (req, res) => {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'user') {
         return res.status(403).json({ message: 'Access denied' });
     }
 
