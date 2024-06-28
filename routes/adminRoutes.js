@@ -11,14 +11,14 @@ router.post('/patient/create', (req, res) => {
         return res.status(403).json({ message: 'Access denied' });
     }
 
-    const { name, hospital_id, disease_id, doctor_id, department } = req.body;
+    const { name, hospital_id, disease_id, doctor_id } = req.body;
 
-    if (!name || !hospital_id || !disease_id || !doctor_id || !department) {
-        return res.status(400).json({ message: 'Please provide patient name, hospital_id, disease_id, doctor_id, and department.' });
+    if (!name || !hospital_id || !disease_id || !doctor_id ) {
+        return res.status(400).json({ message: 'Please provide patient name, hospital_id, disease_id and doctor_id.' });
     }
 
-    db.query('INSERT INTO patients (patient_name, hospital_id, disease_id, doctor_id, department, status) VALUES (?, ?, ?, ?, ?, ?)',
-        [name, hospital_id, disease_id, doctor_id, department, 'primary_check'],
+    db.query('INSERT INTO patients (patient_name, hospital_id, disease_id, doctor_id, status) VALUES (?, ?, ?, ?, ?)',
+        [name, hospital_id, disease_id, doctor_id, 'primary_check'],
         (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Failed to create patient' });
