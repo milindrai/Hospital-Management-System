@@ -6,23 +6,19 @@ const authenticateToken = require('../authMiddleware');
 // Use the authenticateToken middleware
 router.use(authenticateToken);
 
-// Create Appointment - accessible only to users
 router.post('/', (req, res) => {
-    // Check if the requester is not a user
     if (req.user.role !== 'user' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, only users can create appointments' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
-    const { patient_id, doctor_id, appointment_date, appointment_time, remarks } = req.body;
+    const { patient_id, appointment_date, appointment_time, remarks } = req.body;
 
-    // Check if all required fields are present
-    if (!patient_id || !doctor_id || !appointment_date || !appointment_time || !remarks) {
-        return res.status(400).json({ message: 'Please provide patient_id, doctor_id, appointment_date, appointment_time, and remarks.' });
+    if (!patient_id || !appointment_date || !appointment_time || !remarks) {
+        return res.status(400).json({ message: 'Please provide patient_id, appointment_date, appointment_time, and remarks.' });
     }
 
-    // Proceed with database insertion
-    db.query('INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, remarks) VALUES (?, ?, ?, ?, ?)',
-        [patient_id, doctor_id, appointment_date, appointment_time, remarks],
+    db.query('INSERT INTO appointments (patient_id, appointment_date, appointment_time, remarks) VALUES (?, ?,  ?, ?)',
+        [patient_id, appointment_date, appointment_time, remarks],
         (err, result) => {
             if (err) {
                 console.error('Error creating appointment:', err);
@@ -34,11 +30,40 @@ router.post('/', (req, res) => {
 });
 
 
-// Get Appointment Details - accessible only to users
-router.get('/:appointment_id', (req, res) => {
-    // Check if the requester is not a user
+router.put('/:appointment_id', (req, res) => {
     if (req.user.role !== 'user' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, only users can view appointment details' });
+        return res.status(403).json({ message: 'Access denied' });
+    }
+    const appointmentId = req.params.appointment_id;
+
+    const { appointment_date, appointment_time, remarks } = req.body;
+
+    if (!appointment_date || !appointment_time || !remarks) {
+        return res.status(400).json({ message: 'Please provide appointment_date, appointment_time, and remarks.' });
+    }
+
+    db.query(
+        'UPDATE appointments SET appointment_date = ?, appointment_time = ?, remarks = ? WHERE appointment_id = ?',
+        [appointment_date, appointment_time, remarks, appointmentId],
+        (err, result) => {
+            if (err) {
+                console.error('Error updating appointment:', err);
+                return res.status(500).json({ message: 'Failed to update appointment' });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: 'Appointment not found' });
+            }
+
+            res.json({ message: 'Appointment updated', appointment_id: appointmentId });
+        }
+    );
+});
+
+
+router.get('/:appointment_id', (req, res) => {
+    if (req.user.role !== 'user' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const appointmentId = req.params.appointment_id;
@@ -46,7 +71,7 @@ router.get('/:appointment_id', (req, res) => {
     db.query('SELECT * FROM appointments WHERE appointment_id = ?', [appointmentId], (err, results) => {
         if (err) {
             console.error('Error fetching appointment:', err);
-            return res.status(500).json({ message: 'Internal server error' });
+            return res.status(500).json({ message: 'Server error' });
         }
 
         if (results.length === 0) {
@@ -57,11 +82,9 @@ router.get('/:appointment_id', (req, res) => {
     });
 });
 
-// Cancel Appointment - accessible only to users
 router.delete('/:appointment_id', (req, res) => {
-    // Check if the requester is not a user
     if (req.user.role !== 'user' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, only users can cancel appointments' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     const appointmentId = req.params.appointment_id;

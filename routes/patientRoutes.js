@@ -8,7 +8,7 @@ router.use(authenticateToken);
 
 router.get('/status/:name', (req, res) => {
     if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, only doctors and admins can view these details' });
+        return res.status(403).json({ message: 'Access denied' });
     }
     const patientName = req.params.name;
     db.query('SELECT * FROM patients WHERE patient_name = ?', [patientName], (err, results) => {
