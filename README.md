@@ -37,3 +37,12 @@ The Hospital Management System API is designed to streamline the operations of a
 - MySQL
 - JSON Web Tokens (JWT) for authentication
 - bcrypt for password hashing
+
+
+## To get the project up and running on your local machine, follow these steps:
+
+- **Clone the repository to your local machine.**
+- **Install the dependencies by running `npm install`.**
+- **Set up your MySQL database and ensure it is running.**
+- **Create a `.env` file in the root directory and populate it with your database credentials and JWT secret key.**
+- **Start the server with `npm start`.**
