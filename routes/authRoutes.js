@@ -4,6 +4,7 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const sendRegistrationEmail = require('../mailer');
 
 router.post('/signup', (req, res) => {
     const { name, email, password, role } = req.body;
@@ -20,6 +21,10 @@ router.post('/signup', (req, res) => {
         if (results.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
+        
+
+        const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        sendRegistrationEmail({ email, name }, token);
 
         bcrypt.hash(password, 10, (err, hash) => {
             if (err) {
