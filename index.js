@@ -26,6 +26,7 @@ app.use('/auth', authRoutes);
 app.use('/appointments', authenticateToken, appointmentRoutes);
 app.use('/prescriptions', authenticateToken, prescriptionRoutes);
 app.use('/admin', authenticateToken, adminRoutes);
+app.use('/api/users', authRoutes);
 
 
 // Start server

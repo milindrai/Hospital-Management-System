@@ -22,9 +22,7 @@ router.post('/signup', (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
         
-
         const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '24h' });
-        sendRegistrationEmail({ email, name }, token);
 
         bcrypt.hash(password, 10, (err, hash) => {
             if (err) {
@@ -37,9 +35,32 @@ router.post('/signup', (req, res) => {
                     console.error('Error inserting user:', err);
                     return res.status(500).json({ message: 'Failed to create user' });
                 }
-
-                res.json({ message: 'User created successfully' });
+                
+                sendRegistrationEmail({ email, name }, token);
+                res.json({ message: 'User created successfully. Please verify your email.' });
             });
+        });
+    });
+});
+
+router.get('/verify/:token', (req, res) => {
+    const { token } = req.params;
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            console.error('Token verification error:', err);
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        const { email } = decoded;
+
+        db.query('UPDATE users SET verified = 1 WHERE email = ?', [email], (err, result) => {
+            if (err) {
+                console.error('Database update error:', err);
+                return res.status(500).json({ message: 'Database update failed' });
+            }
+
+            res.json({ message: 'Email verified successfully' });
         });
     });
 });

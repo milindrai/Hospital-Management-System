@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -9,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendRegistrationEmail = (user, token) => {
-    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${token}`;
+    const url = `http://localhost:${process.env.PORT}/api/users/verify/${token}`;
     const mailOptions = {
         from: process.env.EMAIL,
         to: user.email,
